@@ -65,6 +65,7 @@ export class Game{
             });
             this.player1.send(moveMessage);
             this.player2.send(moveMessage);
+            this.moves.push ('${move.from}- ${move.to}');
         }catch(e){
             socket.send(JSON.stringify({
                 type: INVALID_MOVE,
