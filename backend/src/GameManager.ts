@@ -30,31 +30,27 @@ export class GameManager {
         socket.on("message",(data)=>{
             const message = JSON.parse(data.toString());
 
-            if(message.type === INIT_GAME){
-                if (this.pendingUser){
-                    const game = new Game(this.pendingUser, socket)
-                    this.games.push(game);
-                    this.pendingUser = null;
-                }else{
-                    this.pendingUser = socket;
-                    socket.send(JSON.stringify({
-                        type: WAITING_FOR_OPPONENT
-                    }));
-                }
+        if (message.type === INIT_GAME){
+            if (this.pendingUser && this.pendingUser!=socket){
+                const game = new Game(this.pendingUser, socket)
+                this.games.push(game);
+                this.pendingUser = null
+            }else{
+                this.pendingUser = socket;
+                socket.send(JSON.stringify({
+                    type: WAITING_FOR_OPPONENT,
+                }));
             }
 
-            if(message.type === MOVE){
-                const game = this.games.find(game=> game.player1 === socket || game.player2 === socket);
-                if(game){
-                    game.makeMove(socket, message.move);
-                }
+        }
 
-            }
+        if (message.type === MOVE){
+            const game = this.games.find(game => game.player1 === socket || game.player2 === socket);
+            if (game){
+                game.makeMove(socket, message.move)
+            } 
+        }
         })
-
     }
-
-
-    
 
 }
