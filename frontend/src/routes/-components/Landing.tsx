@@ -1,6 +1,15 @@
+import { useNavigate } from '@tanstack/react-router';
 import ChessImage from '../../assets/chess_landing.png';
 
 export function Landing() {
+  const navigate = useNavigate({})
+  function ButtonClickHandler(){
+    navigate({
+      to: '/game'
+    })
+  }
+
+
   return (
     <div className="min-h-screen flex items-center justify-center px-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-16 w-full max-w-5xl">
@@ -12,7 +21,8 @@ export function Landing() {
             <h1 className="text-5xl font-bold leading-tight text-gray-900">Welcome to Chess</h1>
             <p className="text-gray-500 text-lg mt-2 ml-2">Play chess online with players around the world.</p>
           </div>
-          <button className="w-full py-4 bg-[#81b64c] hover:bg-[#6fa03e] text-white text-xl font-bold rounded-lg transition-colors">
+          <button className="w-full py-4 bg-[#81b64c] hover:bg-[#6fa03e] text-white text-xl font-bold rounded-lg transition-colors"
+           onClick={ButtonClickHandler}>
             Start Game
           </button>
         </div>
