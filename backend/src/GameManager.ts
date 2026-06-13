@@ -5,13 +5,13 @@ import { Game } from "./Game.js";
 
 export class GameManager {
     private games : Game[];
-    private pendinguser: WebSocket | null;
+    private pendingUser: WebSocket | null;
     private users : WebSocket[];
 
     
     constructor(){
         this.games = []
-        this.pendinguser = null;
+        this.pendingUser = null;
         this.users = [];
     }
 
@@ -31,12 +31,12 @@ export class GameManager {
             const message = JSON.parse(data.toString());
 
             if(message.type === INIT_GAME){
-                if (this.pendinguser){
-                    const game = new Game(this.pendinguser, socket)
+                if (this.pendingUser){
+                    const game = new Game(this.pendingUser, socket)
                     this.games.push(game);
-                    this.pendinguser = null;
+                    this.pendingUser = null;
                 }else{
-                    this.pendinguser = socket;
+                    this.pendingUser = socket;
                     socket.send(JSON.stringify({
                         type: WAITING_FOR_OPPONENT
                     }));
