@@ -30,8 +30,12 @@ export class GameManager {
 
     private addHandler(socket: WebSocket){
         socket.on("message",(data)=>{
-            const message = JSON.parse(data.toString());
-
+            let message;
+            try{
+                message = JSON.parse(data.toString());
+            }catch(e){
+                return;
+            }
         if (message.type === INIT_GAME){
             if (this.pendingUser && this.pendingUser!=socket){
                 const game = new Game(this.pendingUser, socket)
