@@ -40,9 +40,20 @@ export class Game{
         promotion?: 'q' | 'r' | 'b' | 'n'
     }){
         const turn = this.board.turn();
-        if (turn === 'w' && socket!== this.player1) return;
-        if (turn === 'b' && socket!== this.player2) return;
-
+        if (turn === 'w' && socket!== this.player1){
+            socket.send(JSON.stringify({
+                type: INVALID_MOVE,
+                payload : {reason: 'not_your_turn'}
+            }))
+            return;
+        } 
+        if (turn === 'b' && socket!== this.player2){
+            socket.send(JSON.stringify({
+                type: INVALID_MOVE,
+                payload : {reason: 'not_your_turn'}
+            }))
+            return;
+        }
         try{
             const result = this.board.move(move);
             const moveMessage = JSON.stringify({
@@ -57,7 +68,7 @@ export class Game{
         }catch(e){
             socket.send(JSON.stringify({
                 type: INVALID_MOVE,
-                payload: {message:"This move is invalid"}
+                payload: {reason :"illegal_move"}
             }));
             return;
         }
