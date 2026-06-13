@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@types/ws':
-        specifier: ^8.18.1
-        version: 8.18.1
       chess.js:
         specifier: ^1.4.0
         version: 1.4.0
@@ -18,6 +15,9 @@ importers:
         specifier: ^8.20.0
         version: 8.20.0
     devDependencies:
+      '@types/ws':
+        specifier: ^8.18.1
+        version: 8.18.1
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
