@@ -23,7 +23,7 @@ export class GameManager {
     }
 
     removeUser(user : User){
-        this.users = this.users.filter(user => user.id!= user.id);
+        this.users = this.users.filter(u => u.id!= user.id);
         if(user.id === this.pendingUser?.id){
             this.pendingUser = null;
         }
@@ -45,7 +45,7 @@ export class GameManager {
             }else{
                 this.pendingUser = user;
                 user.send(
-                    WAITING_FOR_OPPONENT,
+                    {type: WAITING_FOR_OPPONENT},
                 );
             }
 

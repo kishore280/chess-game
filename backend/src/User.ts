@@ -1,6 +1,5 @@
 import { WebSocket} from "ws";
 import {randomUUID} from "crypto";
-import type { Socket } from "dgram";
 
 export class User{
     public id : string;
