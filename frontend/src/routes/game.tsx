@@ -51,7 +51,6 @@ function RouteComponent() {
       }
       if (message.type === "opponent_disconnected") {
         setDisconnected(true);
-        setTimeout(() => navigate({ to: "/" }), 3000);
       }
     },
   });
@@ -63,8 +62,9 @@ function RouteComponent() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       {disconnected && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
-          Opponent disconnected. Returning to home...
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-4">
+          <span>Opponent disconnected.</span>
+          <button className="underline font-bold cursor-pointer" onClick={() => navigate({ to: "/" })}>Go Back</button>
         </div>
       )}
       {status === "waiting" && <Waiting/>}
