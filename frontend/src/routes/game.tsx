@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess, type Square, type Move } from "chess.js";
 import { Moves } from "./-components/Moves";
+import { Waiting } from "./-components/Waiting";
+import { GameOver } from "./-components/GameOver";
 
 export const Route = createFileRoute("/game")({
   component: RouteComponent,
@@ -54,7 +56,7 @@ function RouteComponent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      {status === "waiting" && <div>Waiting for opponent...</div>}
+      {status === "waiting" && <Waiting/>}
       {status === "playing" && (
         <div className="flex gap-24 items-start">
         <div className="w-[480px]">
@@ -115,7 +117,7 @@ function RouteComponent() {
         <Moves moves ={moves} />
         </div>
       )}
-      {status === "gameover" && <div>Game over...</div>}
+      {status === "gameover" && <GameOver winner={winner}/>}
       {status === "idle" && <div>Idle...</div>}
     </div>
   );
