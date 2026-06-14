@@ -23,7 +23,9 @@ function RouteComponent() {
   const [fen, setFen] = useState<string | null>(null);
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [validSquares, setValidSquares] = useState<string[]>([]);
+  const [disconnected, setDisconnected] = useState(false);
   const chessRef = useRef(new Chess());
+  const navigate = useNavigate();
 
   const { connect, sendMessage } = useWebSocket({
     url: WS_URL,
@@ -47,6 +49,10 @@ function RouteComponent() {
         setWinner(message.payload.winner);
         setStatus("gameover");
       }
+      if (message.type === "opponent_disconnected") {
+        setDisconnected(true);
+        setTimeout(() => navigate({ to: "/" }), 3000);
+      }
     },
   });
 
@@ -56,6 +62,11 @@ function RouteComponent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
+      {disconnected && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+          Opponent disconnected. Returning to home...
+        </div>
+      )}
       {status === "waiting" && <Waiting/>}
       {status === "playing" && (
         <div className="flex gap-24 items-start">
