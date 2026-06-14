@@ -1,0 +1,11 @@
+{
+  "name": "chess-game",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.14.0",
+  "scripts": {
+    "dev:ws": "pnpm --filter ws dev",
+    "dev:http": "pnpm --filter http dev",
+    "dev:frontend": "pnpm --filter frontend dev"
+  }
+}
