@@ -16,6 +16,7 @@ function RouteComponent() {
 
   const { connect, sendMessage } = useWebSocket({
     url: WS_URL,
+    reconnect: false,
     onOpen: () => sendMessage({ type: "init_game" }),
     onMessage: (event) => {
       const message = JSON.parse(event.data)
