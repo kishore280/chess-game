@@ -8,9 +8,11 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
-    "drizzle-orm": "^0.44.0"
+    "drizzle-orm": "^0.44.0",
+    "ws": "^8.21.0"
   },
   "devDependencies": {
+    "@types/ws": "^8.18.1",
     "dotenv": "^16.6.1",
     "drizzle-kit": "^0.31.0",
     "postgres": "^3.4.9",
