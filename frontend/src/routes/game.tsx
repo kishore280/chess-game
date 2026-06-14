@@ -24,6 +24,8 @@ function RouteComponent() {
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [validSquares, setValidSquares] = useState<string[]>([]);
   const [disconnected, setDisconnected] = useState(false);
+  const [name, setName] = useState("Guest");
+  const [editingName, setEditingName] = useState(false);
   const chessRef = useRef(new Chess());
   const navigate = useNavigate();
 
@@ -71,6 +73,25 @@ function RouteComponent() {
       {status === "playing" && (
         <div className="flex gap-24 items-start">
         <div className="w-[480px]">
+          <div className="mb-2 flex items-center gap-2">
+            {editingName ? (
+              <input
+                autoFocus
+                className="border-b border-gray-400 outline-none text-sm font-semibold px-1"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                onBlur={() => setEditingName(false)}
+                onKeyDown={e => e.key === "Enter" && setEditingName(false)}
+              />
+            ) : (
+              <span
+                className="text-sm font-semibold cursor-pointer hover:underline"
+                onClick={() => setEditingName(true)}
+              >
+                {name} ({color ?? "?"})
+              </span>
+            )}
+          </div>
           <Chessboard
             options={{
               position:
