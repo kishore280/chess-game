@@ -1,25 +1,32 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useWebSocket } from '#/hooks/useWebSocket'
-import { useEffect, useState } from 'react'
+import { createFileRoute } from "@tanstack/react-router";
+import { useWebSocket } from "#/hooks/useWebSocket";
+import { useEffect, useRef, useState } from "react";
+import { Chessboard } from "react-chessboard";
+import { Chess, type Square, type Move } from "chess.js";
 
-export const Route = createFileRoute('/game')({
+export const Route = createFileRoute("/game")({
   component: RouteComponent,
-})
+});
 
-const WS_URL = 'ws://localhost:8080'
+const WS_URL = "ws://localhost:8080";
 
 function RouteComponent() {
   const [color, setColor] = useState<"white" | "black" | null>(null);
-  const [status, setStatus] = useState<"idle" | "waiting" | "playing" | "gameover">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "waiting" | "playing" | "gameover"
+  >("idle");
   const [winner, setWinner] = useState<"white" | "black" | null>(null);
   const [fen, setFen] = useState<string | null>(null);
+  const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
+  const [validSquares, setValidSquares] = useState<string[]>([]);
+  const chessRef = useRef(new Chess());
 
   const { connect, sendMessage } = useWebSocket({
     url: WS_URL,
     reconnect: false,
     onOpen: () => sendMessage({ type: "init_game" }),
     onMessage: (event) => {
-      const message = JSON.parse(event.data)
+      const message = JSON.parse(event.data);
       if (message.type === "waiting_for_opponent") {
         setStatus("waiting");
       }
@@ -28,6 +35,7 @@ function RouteComponent() {
         setStatus("playing");
       }
       if (message.type === "move") {
+        chessRef.current.load(message.payload.fen);
         setFen(message.payload.fen);
       }
       if (message.type === "game_over") {
@@ -35,14 +43,73 @@ function RouteComponent() {
         setStatus("gameover");
       }
     },
-  })
+  });
 
-  useEffect(() => { connect() }, [])
+  useEffect(() => {
+    connect();
+  }, []);
 
-  return <div>
-    {status === "waiting" && <div>Waiting for opponent...</div>}
-    {status === "playing" && <div>Playing...</div>}
-    {status === "gameover" && <div>Game over...</div>}
-    {status === "idle" && <div>Idle...</div>}
-  </div>
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      {status === "waiting" && <div>Waiting for opponent...</div>}
+      {status === "playing" && (
+        <div className="w-[480px]">
+          <Chessboard
+            options={{
+              position:
+                fen ??
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+              boardOrientation: color ?? "white",
+              squareStyles: Object.fromEntries(
+                validSquares.map((sq) => [
+                  sq,
+                  { backgroundColor: "rgba(255, 255, 0, 0.25)" },
+                ]),
+              ),
+
+              onPieceDrag({ square }) {
+                const moves = chessRef.current.moves({
+                  square: square as Square,
+                  verbose: true,
+                }) as Move[];
+                setValidSquares(moves.map((m) => m.to));
+              },
+
+              onPieceDrop({ sourceSquare, targetSquare }) {
+                if (!targetSquare) return false;
+                sendMessage({
+                  type: "move",
+                  move: { from: sourceSquare, to: targetSquare },
+                });
+                setValidSquares([]);
+                return true;
+              },
+
+              onSquareClick({ square }) {
+                if (selectedSquare) {
+                  sendMessage({
+                    type: "move",
+                    move: { from: selectedSquare, to: square },
+                  });
+                  setSelectedSquare(null);
+                  setValidSquares([]);
+                } else {
+                  const moves = chessRef.current.moves({
+                    square: square as Square,
+                    verbose: true,
+                  }) as Move[];
+                  if (moves.length > 0) {
+                    setSelectedSquare(square);
+                    setValidSquares(moves.map((m) => m.to));
+                  }
+                }
+              },
+            }}
+          />
+        </div>
+      )}
+      {status === "gameover" && <div>Game over...</div>}
+      {status === "idle" && <div>Idle...</div>}
+    </div>
+  );
 }
