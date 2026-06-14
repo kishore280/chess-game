@@ -3,6 +3,7 @@ import { useWebSocket } from "#/hooks/useWebSocket";
 import { useEffect, useRef, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess, type Square, type Move } from "chess.js";
+import { Moves } from "./-components/Moves";
 
 export const Route = createFileRoute("/game")({
   component: RouteComponent,
@@ -16,6 +17,7 @@ function RouteComponent() {
     "idle" | "waiting" | "playing" | "gameover"
   >("idle");
   const [winner, setWinner] = useState<"white" | "black" | null>(null);
+  const [moves, setMoves] = useState<string[]>([]);
   const [fen, setFen] = useState<string | null>(null);
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [validSquares, setValidSquares] = useState<string[]>([]);
@@ -37,6 +39,7 @@ function RouteComponent() {
       if (message.type === "move") {
         chessRef.current.load(message.payload.fen);
         setFen(message.payload.fen);
+        setMoves(prev => [...prev, message.payload.move.san]);
       }
       if (message.type === "game_over") {
         setWinner(message.payload.winner);
@@ -53,6 +56,7 @@ function RouteComponent() {
     <div className="min-h-screen flex items-center justify-center">
       {status === "waiting" && <div>Waiting for opponent...</div>}
       {status === "playing" && (
+        <div className="flex gap-24 items-start">
         <div className="w-[480px]">
           <Chessboard
             options={{
@@ -82,6 +86,7 @@ function RouteComponent() {
                   move: { from: sourceSquare, to: targetSquare },
                 });
                 setValidSquares([]);
+
                 return true;
               },
 
@@ -106,6 +111,8 @@ function RouteComponent() {
               },
             }}
           />
+        </div>
+        <Moves moves ={moves} />
         </div>
       )}
       {status === "gameover" && <div>Game over...</div>}
