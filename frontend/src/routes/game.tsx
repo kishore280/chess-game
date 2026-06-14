@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useWebSocket } from "#/hooks/useWebSocket";
 import { useEffect, useRef, useState } from "react";
 import { Chessboard } from "react-chessboard";

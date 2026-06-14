@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { INIT_GAME, MOVE, WAITING_FOR_OPPONENT } from "./messages.js";
+import { INIT_GAME, MOVE, WAITING_FOR_OPPONENT, OPPONENT_DISCONNECTED } from "./messages.js";
 import { Game } from "./Game.js";
 import { User } from "./User.js";
 
@@ -26,6 +26,12 @@ export class GameManager {
         this.users = this.users.filter(u => u.id!= user.id);
         if(user.id === this.pendingUser?.id){
             this.pendingUser = null;
+        }
+        const game = this.games.find(g => g.player1.id === user.id || g.player2.id === user.id);
+        if (game) {
+            const opponent = game.player1.id === user.id ? game.player2 : game.player1;
+            opponent.send({ type: OPPONENT_DISCONNECTED });
+            this.games = this.games.filter(g => g !== game);
         }
     }
 
