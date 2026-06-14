@@ -20,13 +20,15 @@ export class Game{
         this.player1.send({
             type: INIT_GAME,
             payload: {
-                color: "white"
+                color: "white",
+                opponentName: this.player2.name
             }
         });
         this.player2.send({
             type: INIT_GAME,
             payload: {
-                color: "black"
+                color: "black",
+                opponentName: this.player1.name
             }
         });
 

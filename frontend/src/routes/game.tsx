@@ -26,13 +26,17 @@ function RouteComponent() {
   const [disconnected, setDisconnected] = useState(false);
   const [name, setName] = useState("Guest");
   const [editingName, setEditingName] = useState(false);
+  const [opponentName, setOpponentName] = useState<string | null>(null);
   const chessRef = useRef(new Chess());
   const navigate = useNavigate();
 
   const { connect, sendMessage } = useWebSocket({
     url: WS_URL,
     reconnect: false,
-    onOpen: () => sendMessage({ type: "init_game" }),
+    onOpen: () => {
+      sendMessage({ type: "set_name", payload: { name } })
+      sendMessage({ type: "init_game" })
+    },
     onMessage: (event) => {
       const message = JSON.parse(event.data);
       if (message.type === "waiting_for_opponent") {
@@ -40,6 +44,7 @@ function RouteComponent() {
       }
       if (message.type === "init_game") {
         setColor(message.payload.color);
+        setOpponentName(message.payload.opponentName);
         setStatus("playing");
       }
       if (message.type === "move") {
@@ -50,6 +55,9 @@ function RouteComponent() {
       if (message.type === "game_over") {
         setWinner(message.payload.winner);
         setStatus("gameover");
+      }
+      if (message.type === "set_name") {
+        setOpponentName(message.payload.name);
       }
       if (message.type === "opponent_disconnected") {
         setDisconnected(true);
@@ -73,6 +81,9 @@ function RouteComponent() {
       {status === "playing" && (
         <div className="flex gap-24 items-start">
         <div className="w-[480px]">
+          <div className="mb-2 text-sm text-gray-500 font-semibold">
+            {opponentName ?? "Guest"} ({color === "white" ? "black" : "white"})
+          </div>
           <div className="mb-2 flex items-center gap-2">
             {editingName ? (
               <input
@@ -80,8 +91,8 @@ function RouteComponent() {
                 className="border-b border-gray-400 outline-none text-sm font-semibold px-1"
                 value={name}
                 onChange={e => setName(e.target.value)}
-                onBlur={() => setEditingName(false)}
-                onKeyDown={e => e.key === "Enter" && setEditingName(false)}
+                onBlur={() => { setEditingName(false); sendMessage({ type: "set_name", payload: { name } }) }}
+                onKeyDown={e => { if (e.key === "Enter") { setEditingName(false); sendMessage({ type: "set_name", payload: { name } }) } }}
               />
             ) : (
               <span
