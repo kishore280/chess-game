@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useWebSocket } from "#/hooks/useWebSocket";
 import { useEffect, useRef, useState } from "react";
 import { Chessboard } from "react-chessboard";
@@ -8,6 +8,9 @@ import { Waiting } from "./-components/Waiting";
 import { GameOver } from "./-components/GameOver";
 
 export const Route = createFileRoute("/game")({
+  beforeLoad: ({ context }) => {
+    if (!context.user) throw redirect({ to: '/login' })
+  },
   component: RouteComponent,
 });
 
