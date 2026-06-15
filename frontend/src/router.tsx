@@ -6,6 +6,7 @@ export interface RouterContext {
 }
 
 async function getSession(): Promise<RouterContext['user']> {
+  if (typeof window === 'undefined') return null
   const res = await fetch('http://localhost:3001/me', { credentials: 'include' })
   return res.ok ? res.json() : null
 }

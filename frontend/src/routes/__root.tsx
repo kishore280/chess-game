@@ -6,6 +6,7 @@ import appCss from '../styles.css?url'
 
 export const Route = createRootRoute({
   beforeLoad: async () => {
+    if (typeof window === 'undefined') return { user: null }
     const res = await fetch('http://localhost:3001/me', { credentials: 'include' })
     const user = res.ok ? await res.json() : null
     return { user }

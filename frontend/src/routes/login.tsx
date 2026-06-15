@@ -23,7 +23,7 @@ function LoginPage() {
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? 'Login failed'); return }
-      navigate({ to: '/' })
+      navigate({ to: '/game' })
     } catch {
       setError('Network error')
     } finally {
