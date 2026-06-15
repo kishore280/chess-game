@@ -1,18 +1,29 @@
-import { Request, Response, NextFunction} from 'express'
+import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 
-export function requireAuth(req: Request, res: Response, next: NextFunction){
-    const authHeader = req.headers.authorization
-    if(!authHeader?.startsWith('Bearer ')){
-        res.status(401).json({error: 'No token'})
-        return 
-    }
-    const token = authHeader.split(' ')[1]
+export function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (req.cookies.token) {
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!)
-        res.locals.user = decoded
-        next()
-    }catch{
-        res.status(401).json({error: 'invalid token'})
+      res.locals.user = jwt.verify(req.cookies.token, process.env.JWT_SECRET!)
+      next()
+      return
+    } catch {
+      res.status(401).json({ error: 'Invalid token' })
+      return
     }
+  }
+
+  const authHeader = req.headers.authorization
+  if (authHeader?.startsWith('Bearer ')) {
+    try {
+      res.locals.user = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET!)
+      next()
+      return
+    } catch {
+      res.status(401).json({ error: 'Invalid token' })
+      return
+    }
+  }
+
+  res.status(401).json({ error: 'No token' })
 }

@@ -2,6 +2,7 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import authRouter from './routes/auth.js'
+import cookieParser from 'cookie-parser'
 import { requireAuth } from './middleware/requireAuth.js'
 import { db, users, eq } from '@chess/db'
 
@@ -9,6 +10,7 @@ const PORT = 3001
 const app = express();
 app.use(cors())
 app.use(express.json())
+app.use(cookieParser())
 app.use('/auth', authRouter)
 
 app.get('/',(req,res)=>{
@@ -31,4 +33,3 @@ app.get('/health', (req, res)=>{
 app.listen(PORT,()=>{
     console.log(`server running on ${PORT}`)
 })
-
