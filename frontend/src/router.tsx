@@ -1,22 +1,15 @@
 import { createRouter as createTanStackRouter } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
+import type { AuthUser } from './routes/__root'
 
 export interface RouterContext {
-  user: { username: string; email: string } | null
+  user: AuthUser | null
 }
 
-async function getSession(): Promise<RouterContext['user']> {
-  if (typeof window === 'undefined') return null
-  const res = await fetch('http://localhost:3001/me', { credentials: 'include' })
-  return res.ok ? res.json() : null
-}
-
-export async function getRouter() {
-  const user = await getSession()
-
+export function getRouter() {
   const router = createTanStackRouter({
     routeTree,
-    context: { user },
+    context: { user: null } as RouterContext,
     scrollRestoration: true,
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,
@@ -27,6 +20,6 @@ export async function getRouter() {
 
 declare module '@tanstack/react-router' {
   interface Register {
-    router: Awaited<ReturnType<typeof getRouter>>
+    router: ReturnType<typeof getRouter>
   }
 }

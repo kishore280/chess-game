@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useWebSocket } from "#/hooks/useWebSocket";
 import { useEffect, useRef, useState } from "react";
 import { Chessboard } from "react-chessboard";
@@ -8,15 +8,13 @@ import { Waiting } from "./-components/Waiting";
 import { GameOver } from "./-components/GameOver";
 
 export const Route = createFileRoute("/game")({
-  beforeLoad: ({ context }) => {
-    if (!context.user) throw redirect({ to: '/login' })
-  },
   component: RouteComponent,
 });
 
 const WS_URL = "ws://localhost:8080";
 
 function RouteComponent() {
+  const { user } = Route.useRouteContext()
   const [color, setColor] = useState<"white" | "black" | null>(null);
   const [status, setStatus] = useState<
     "idle" | "waiting" | "playing" | "gameover"
@@ -31,8 +29,9 @@ function RouteComponent() {
   const chessRef = useRef(new Chess());
   const navigate = useNavigate();
 
-  const { connect, sendMessage } = useWebSocket({
+  const { connect, sendMessage, isConnected } = useWebSocket({
     url: WS_URL,
+    protocols: user ? [`access_token.${user.token}`] : undefined,
     reconnect: false,
     onOpen: () => {
       sendMessage({ type: "init_game" })
@@ -63,7 +62,8 @@ function RouteComponent() {
   });
 
   useEffect(() => {
-    connect();
+    if (!user) { navigate({ to: '/login' }); return }
+    connect()
   }, []);
 
   return (
@@ -142,7 +142,15 @@ function RouteComponent() {
         </div>
       )}
       {status === "gameover" && <GameOver winner={winner}/>}
-      {status === "idle" && <div>Idle...</div>}
+      {status === "idle" && (
+        <button
+          className="px-8 py-4 bg-[#81b64c] hover:bg-[#6fa03e] text-white text-xl font-bold rounded-lg disabled:opacity-50"
+          disabled={!isConnected}
+          onClick={() => sendMessage({ type: "init_game" })}
+        >
+          {isConnected ? "Find Game" : "Connecting..."}
+        </button>
+      )}
     </div>
   );
 }

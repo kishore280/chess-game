@@ -1,14 +1,32 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { getRequest } from '@tanstack/react-start/server'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import appCss from '../styles.css?url'
 
+export interface AuthUser {
+  userId: string
+  username: string
+  email: string
+  token: string
+}
+
+const getSession = createServerFn({ method: 'GET' }).handler(async () => {
+  const request = getRequest()
+  const cookie = request.headers.get('cookie') ?? ''
+  try {
+    const res = await fetch('http://localhost:3001/me', { headers: { cookie } })
+    return res.ok ? (res.json() as Promise<AuthUser>) : null
+  } catch {
+    return null
+  }
+})
+
 export const Route = createRootRoute({
   beforeLoad: async () => {
-    if (typeof window === 'undefined') return { user: null }
-    const res = await fetch('http://localhost:3001/me', { credentials: 'include' })
-    const user = res.ok ? await res.json() : null
+    const user = await getSession()
     return { user }
   },
   head: () => ({
