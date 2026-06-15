@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { INIT_GAME, MOVE, WAITING_FOR_OPPONENT, OPPONENT_DISCONNECTED, SET_NAME } from "./messages.js";
+import { INIT_GAME, MOVE, WAITING_FOR_OPPONENT, OPPONENT_DISCONNECTED } from "./messages.js";
 import { Game } from "./Game.js";
 import { User } from "./User.js";
 
@@ -43,16 +43,7 @@ export class GameManager {
             }catch(e){
                 return;
             }
-        if (message.type === SET_NAME) {
-            user.name = message.payload.name;
-            const game = this.games.find(g => g.player1.id === user.id || g.player2.id === user.id);
-            if (game) {
-                const opponent = game.player1.id === user.id ? game.player2 : game.player1;
-                opponent.send({ type: SET_NAME, payload: { name: user.name } });
-            }
-        }
-
-        if (message.type === INIT_GAME){
+if (message.type === INIT_GAME){
             if (this.pendingUser && this.pendingUser?.id!=user.id){
                 const game = new Game(this.pendingUser, user)
                 this.games.push(game);
