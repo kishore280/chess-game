@@ -1,16 +1,14 @@
 import { WebSocket} from "ws";
-import {randomUUID} from "crypto";
 
 export class User{
     public id : string;
     public name: string;
     public socket: WebSocket;
 
-
-    constructor(socket: WebSocket, name?: string){
-        this.id = randomUUID();
-        this.name = name?? 'guest';
-        this. socket = socket;
+    constructor(socket: WebSocket, userId: string, username: string){
+        this.id = userId;
+        this.name = username;
+        this.socket = socket;
     }
 
     send(message: Object){
