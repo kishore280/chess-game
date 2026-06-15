@@ -12,7 +12,7 @@ const gameManager = new GameManager();
 
 wss.on('connection', function connection(ws) {
   const protocol = ws.protocol;
-  const token = protocol.replace('access_token', '')
+  const token = protocol.replace('access_token.', '')
 
   let decoded: JwtPayload
   try{
