@@ -24,8 +24,6 @@ function RouteComponent() {
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [validSquares, setValidSquares] = useState<string[]>([]);
   const [disconnected, setDisconnected] = useState(false);
-  const [name, setName] = useState("Guest");
-  const [editingName, setEditingName] = useState(false);
   const [opponentName, setOpponentName] = useState<string | null>(null);
   const chessRef = useRef(new Chess());
   const navigate = useNavigate();
@@ -34,7 +32,6 @@ function RouteComponent() {
     url: WS_URL,
     reconnect: false,
     onOpen: () => {
-      sendMessage({ type: "set_name", payload: { name } })
       sendMessage({ type: "init_game" })
     },
     onMessage: (event) => {
@@ -55,9 +52,6 @@ function RouteComponent() {
       if (message.type === "game_over") {
         setWinner(message.payload.winner);
         setStatus("gameover");
-      }
-      if (message.type === "set_name") {
-        setOpponentName(message.payload.name);
       }
       if (message.type === "opponent_disconnected") {
         setDisconnected(true);
@@ -84,24 +78,8 @@ function RouteComponent() {
           <div className="mb-2 text-sm text-gray-500 font-semibold">
             {opponentName ?? "Guest"} ({color === "white" ? "black" : "white"})
           </div>
-          <div className="mb-2 flex items-center gap-2">
-            {editingName ? (
-              <input
-                autoFocus
-                className="border-b border-gray-400 outline-none text-sm font-semibold px-1"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                onBlur={() => { setEditingName(false); sendMessage({ type: "set_name", payload: { name } }) }}
-                onKeyDown={e => { if (e.key === "Enter") { setEditingName(false); sendMessage({ type: "set_name", payload: { name } }) } }}
-              />
-            ) : (
-              <span
-                className="text-sm font-semibold cursor-pointer hover:underline"
-                onClick={() => setEditingName(true)}
-              >
-                {name} ({color ?? "?"})
-              </span>
-            )}
+          <div className="mb-2 text-sm font-semibold">
+            You ({color ?? "?"})
           </div>
           <Chessboard
             options={{
